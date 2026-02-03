@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TapNote</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --main:#7F1734;
+  --dark:#232323;
+  --white:#ffffff;
+}
+
+*{box-sizing:border-box;font-family:Poppins,system-ui,sans-serif}
+
+body{
+  margin:0;
+  background:linear-gradient(160deg,var(--main),#5b1026);
+  color:var(--dark);
+  height:100vh;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* floating hearts */
+.hearts{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+}
+.heart{
+  position:absolute;
+  bottom:-20px;
+  font-size:16px;
+  opacity:.25;
+  animation:float 10s linear infinite;
+}
+@keyframes float{
+  from{transform:translateY(0)}
+  to{transform:translateY(-110vh)}
+}
+
+.card{
+  width:92%;
+  max-width:420px;
+  background:var(--white);
+  border-radius:18px;
+  padding:26px 22px;
+  text-align:center;
+  box-shadow:0 20px 40px rgba(0,0,0,.25);
+  display:none;
+}
+
+.card.active{display:block;}
+
+h2{
+  margin:0 0 10px;
+  color:var(--main);
+}
+
+p{
+  line-height:1.6;
+  font-size:14.5px;
+}
+
+button{
+  border:none;
+  border-radius:999px;
+  padding:12px 18px;
+  background:var(--main);
+  color:white;
+  font-size:14px;
+  cursor:pointer;
+}
+
+button.ghost{
+  background:transparent;
+  border:1px solid var(--main);
+  color:var(--main);
+}
+
+.small{
+  font-size:12px;
+  opacity:.7;
+}
+
+/* lock screen */
+.lock{
+  font-size:48px;
+  cursor:pointer;
+  margin:14px 0;
+  user-select:none;
+  transition:transform .15s;
+}
+
+.lock.shake{
+  transform:scale(1.1) rotate(-6deg);
+}
+
+.boxes{
+  letter-spacing:6px;
+  font-size:18px;
+}
+
+/* note buttons */
+.actions{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-top:18px;
+}
+
+.hidden-line{
+  margin-top:14px;
+  display:none;
+  font-weight:500;
+  color:var(--main);
+}
+
+/* heart burst */
+.burst-heart{
+  position:fixed;
+  left:50%;
+  bottom:30%;
+  font-size:22px;
+  animation:burst 1.8s ease-out forwards;
+}
+@keyframes burst{
+  from{transform:translate(-50%,0);opacity:1}
+  to{transform:translate(-50%,-140px);opacity:0}
+}
+</style>
+</head>
+<body>
+
+<div class="hearts" id="bgHearts"></div>
+
+<!-- Screen 1 -->
+<div class="card active" id="screen1">
+  <h2>I made something small for you 🤍</h2>
+  <p>Just for you.</p>
+  <button id="openBtn">Open my note</button>
+  <p class="small">tap when you’re ready</p>
+</div>
+
+<!-- Screen 2 -->
+<div class="card" id="screen2">
+  <h2>🔒 Your birthday note</h2>
+  <div class="boxes" id="boxes">▢ ▢ ▢ ▢</div>
+  <div class="lock" id="lockBtn">🔒</div>
+  <p class="small">Tap the lock to unlock</p>
+</div>
+
+<!-- Screen 3 -->
+<div class="card" id="screen3">
+  <h2>Happy belated birthday, Aiman 🤍</h2>
+
+  <!-- ✏️ EDIT YOUR MESSAGE HERE -->
+  <p id="noteText">
+I’m really sorry I forgot your birthday.
+I take full responsibility for that.
+
+I just want you to know how proud I am of you —
+especially with everything you’re going through right now.
+Your dream to become a police officer and your discipline really inspire me.
+
+Even on the days you feel less confident about yourself,
+you are still someone I admire and care about deeply.
+
+May Allah ease your journey, protect your heart,
+and give you peace while you’re preparing for your future.
+  </p>
+
+  <p style="margin-top:10px;">— Aida</p>
+
+  <div class="actions">
+    <button id="heartBtn">❤️ Send a heart</button>
+    <button class="ghost" id="soundBtn">🔊 Play a soft sound</button>
+    <button class="ghost" id="lastBtn">🌙 One last thing</button>
+  </div>
+
+  <div class="hidden-line" id="hiddenLine">
+    Still your biggest supporter. Always.
+  </div>
+</div>
+
+<!-- Screen 4 -->
+<div class="card" id="screen4">
+  <h2>Thank you for opening this 🤍</h2>
+</div>
+
+<!-- tiny sounds (base64, no files needed) -->
+<audio id="clickSound" src="data:audio/wav;base64,UklGRhIAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQQAAAAA"></audio>
+<audio id="chimeSound" src="data:audio/wav;base64,UklGRhIAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQQAAAAA"></audio>
+
+<script>
+const s1 = document.getElementById("screen1");
+const s2 = document.getElementById("screen2");
+const s3 = document.getElementById("screen3");
+const s4 = document.getElementById("screen4");
+
+const openBtn = document.getElementById("openBtn");
+const lockBtn = document.getElementById("lockBtn");
+const boxes = document.getElementById("boxes");
+
+const heartBtn = document.getElementById("heartBtn");
+const soundBtn = document.getElementById("soundBtn");
+const lastBtn  = document.getElementById("lastBtn");
+
+const hiddenLine = document.getElementById("hiddenLine");
+
+const clickSound = document.getElementById("clickSound");
+const chimeSound = document.getElementById("chimeSound");
+
+let unlockCount = 0;
+
+openBtn.onclick = () => {
+  s1.classList.remove("active");
+  s2.classList.add("active");
+};
+
+lockBtn.onclick = () => {
+  unlockCount++;
+  clickSound.currentTime = 0;
+  clickSound.play();
+
+  lockBtn.classList.add("shake");
+  setTimeout(()=>lockBtn.classList.remove("shake"),120);
+
+  let filled = Math.min(unlockCount,4);
+  boxes.textContent = "■ ".repeat(filled) + "▢ ".repeat(4-filled);
+
+  if(unlockCount >= 4){
+    setTimeout(()=>{
+      s2.classList.remove("active");
+      s3.classList.add("active");
+    },300);
+  }
+};
+
+heartBtn.onclick = () => {
+  for(let i=0;i<10;i++){
+    const h = document.createElement("div");
+    h.className = "burst-heart";
+    h.textContent = "🤍";
+    h.style.left = (45 + Math.random()*10) + "%";
+    document.body.appendChild(h);
+    setTimeout(()=>h.remove(),1800);
+  }
+};
+
+soundBtn.onclick = () => {
+  chimeSound.currentTime = 0;
+  chimeSound.play();
+};
+
+lastBtn.onclick = () => {
+  hiddenLine.style.display = "block";
+  setTimeout(()=>{
+    s3.classList.remove("active");
+    s4.classList.add("active");
+  },1500);
+};
+
+/* background hearts */
+const bg = document.getElementById("bgHearts");
+for(let i=0;i<16;i++){
+  const h = document.createElement("div");
+  h.className = "heart";
+  h.textContent = "❤";
+  h.style.left = Math.random()*100+"%";
+  h.style.animationDuration = (8+Math.random()*6)+"s";
+  h.style.fontSize = (12+Math.random()*10)+"px";
+  bg.appendChild(h);
+}
+</script>
+</body>
+</html>
