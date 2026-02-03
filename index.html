@@ -3,28 +3,29 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>TapNote</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<title>My Sunshine</title>
 
 <style>
 :root{
-  --main:#7F1734;
+  --main:#440000;
   --dark:#232323;
   --white:#ffffff;
 }
 
-*{box-sizing:border-box;font-family:Poppins,system-ui,sans-serif}
+*{
+  box-sizing:border-box;
+}
 
 body{
   margin:0;
-  background:linear-gradient(160deg,var(--main),#5b1026);
+  background:linear-gradient(160deg,var(--main),#2b0000);
   color:var(--dark);
   height:100vh;
   overflow:hidden;
   display:flex;
   align-items:center;
   justify-content:center;
+  font-family:"Lucida Calligraphy","Lucida Handwriting","Brush Script MT",cursive;
 }
 
 /* floating hearts */
@@ -65,8 +66,8 @@ h2{
 }
 
 p{
-  line-height:1.6;
-  font-size:14.5px;
+  line-height:1.7;
+  font-size:15px;
 }
 
 button{
@@ -77,6 +78,7 @@ button{
   color:white;
   font-size:14px;
   cursor:pointer;
+  font-family:inherit;
 }
 
 button.ghost{
@@ -90,7 +92,15 @@ button.ghost{
   opacity:.7;
 }
 
-/* lock screen */
+/* bounce hover */
+#openBtn{
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1);
+}
+#openBtn:hover{
+  transform:translateY(-6px) scale(1.05);
+}
+
+/* lock */
 .lock{
   font-size:48px;
   cursor:pointer;
@@ -98,17 +108,31 @@ button.ghost{
   user-select:none;
   transition:transform .15s;
 }
-
 .lock.shake{
   transform:scale(1.1) rotate(-6deg);
 }
 
+/* unlock icons */
 .boxes{
-  letter-spacing:6px;
-  font-size:18px;
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  margin:14px 0;
+}
+.slot{
+  width:26px;
+  height:26px;
+  opacity:.25;
+  filter:grayscale(1);
+  transition:opacity .25s, filter .25s, transform .25s;
+}
+.slot.filled{
+  opacity:1;
+  filter:none;
+  transform:scale(1.1);
 }
 
-/* note buttons */
+/* actions */
 .actions{
   display:flex;
   flex-direction:column;
@@ -121,6 +145,10 @@ button.ghost{
   display:none;
   font-weight:500;
   color:var(--main);
+}
+
+#noteText{
+  font-style:italic;
 }
 
 /* heart burst */
@@ -152,7 +180,14 @@ button.ghost{
 <!-- Screen 2 -->
 <div class="card" id="screen2">
   <h2>🔒 Your birthday note</h2>
-  <div class="boxes" id="boxes">▢ ▢ ▢ ▢</div>
+
+  <div class="boxes">
+    <img class="slot" src="heart-white.png">
+    <img class="slot" src="pic1.png">
+    <img class="slot" src="heart-white.png">
+    <img class="slot" src="pic2.png">
+  </div>
+
   <div class="lock" id="lockBtn">🔒</div>
   <p class="small">Tap the lock to unlock</p>
 </div>
@@ -161,7 +196,6 @@ button.ghost{
 <div class="card" id="screen3">
   <h2>Happy belated birthday, Aiman 🤍</h2>
 
-  <!-- ✏️ EDIT YOUR MESSAGE HERE -->
   <p id="noteText">
 I’m really sorry I forgot your birthday.
 I take full responsibility for that.
@@ -181,7 +215,6 @@ and give you peace while you’re preparing for your future.
 
   <div class="actions">
     <button id="heartBtn">❤️ Send a heart</button>
-    <button class="ghost" id="soundBtn">🔊 Play a soft sound</button>
     <button class="ghost" id="lastBtn">🌙 One last thing</button>
   </div>
 
@@ -195,10 +228,6 @@ and give you peace while you’re preparing for your future.
   <h2>Thank you for opening this 🤍</h2>
 </div>
 
-<!-- tiny sounds (base64, no files needed) -->
-<audio id="clickSound" src="data:audio/wav;base64,UklGRhIAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQQAAAAA"></audio>
-<audio id="chimeSound" src="data:audio/wav;base64,UklGRhIAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQQAAAAA"></audio>
-
 <script>
 const s1 = document.getElementById("screen1");
 const s2 = document.getElementById("screen2");
@@ -207,16 +236,11 @@ const s4 = document.getElementById("screen4");
 
 const openBtn = document.getElementById("openBtn");
 const lockBtn = document.getElementById("lockBtn");
-const boxes = document.getElementById("boxes");
+const slots = document.querySelectorAll(".slot");
 
 const heartBtn = document.getElementById("heartBtn");
-const soundBtn = document.getElementById("soundBtn");
 const lastBtn  = document.getElementById("lastBtn");
-
 const hiddenLine = document.getElementById("hiddenLine");
-
-const clickSound = document.getElementById("clickSound");
-const chimeSound = document.getElementById("chimeSound");
 
 let unlockCount = 0;
 
@@ -227,20 +251,19 @@ openBtn.onclick = () => {
 
 lockBtn.onclick = () => {
   unlockCount++;
-  clickSound.currentTime = 0;
-  clickSound.play();
 
   lockBtn.classList.add("shake");
   setTimeout(()=>lockBtn.classList.remove("shake"),120);
 
-  let filled = Math.min(unlockCount,4);
-  boxes.textContent = "■ ".repeat(filled) + "▢ ".repeat(4-filled);
+  if(slots[unlockCount - 1]){
+    slots[unlockCount - 1].classList.add("filled");
+  }
 
   if(unlockCount >= 4){
     setTimeout(()=>{
       s2.classList.remove("active");
       s3.classList.add("active");
-    },300);
+    },400);
   }
 };
 
@@ -255,17 +278,12 @@ heartBtn.onclick = () => {
   }
 };
 
-soundBtn.onclick = () => {
-  chimeSound.currentTime = 0;
-  chimeSound.play();
-};
-
 lastBtn.onclick = () => {
   hiddenLine.style.display = "block";
   setTimeout(()=>{
     s3.classList.remove("active");
     s4.classList.add("active");
-  },1500);
+  },3000);
 };
 
 /* background hearts */
@@ -280,5 +298,6 @@ for(let i=0;i<16;i++){
   bg.appendChild(h);
 }
 </script>
+
 </body>
 </html>
