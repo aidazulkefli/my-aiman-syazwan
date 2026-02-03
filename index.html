@@ -12,19 +12,17 @@
   --white:#ffffff;
 }
 
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
   margin:0;
   background:linear-gradient(160deg,var(--main),#2b0000);
-  color:var(--dark);
   height:100vh;
   overflow:hidden;
   display:flex;
   align-items:center;
   justify-content:center;
+  color:var(--dark);
   font-family:"Lucida Calligraphy","Lucida Handwriting","Brush Script MT",cursive;
 }
 
@@ -33,7 +31,6 @@ body{
   position:fixed;
   inset:0;
   pointer-events:none;
-  overflow:hidden;
 }
 .heart{
   position:absolute;
@@ -47,6 +44,7 @@ body{
   to{transform:translateY(-110vh)}
 }
 
+/* cards */
 .card{
   width:92%;
   max-width:420px;
@@ -58,7 +56,13 @@ body{
   display:none;
 }
 
-.card.active{display:block;}
+.card.active{display:block}
+
+/* wider wish page */
+#wishCard{
+  max-width:620px;
+  padding:34px 32px;
+}
 
 h2{
   margin:0 0 10px;
@@ -106,7 +110,6 @@ button.ghost{
   cursor:pointer;
   margin:14px 0;
   user-select:none;
-  transition:transform .15s;
 }
 .lock.shake{
   transform:scale(1.1) rotate(-6deg);
@@ -124,7 +127,7 @@ button.ghost{
   height:26px;
   opacity:.25;
   filter:grayscale(1);
-  transition:opacity .25s, filter .25s, transform .25s;
+  transition:.25s;
 }
 .slot.filled{
   opacity:1;
@@ -141,17 +144,13 @@ button.ghost{
 }
 
 .hidden-line{
-  margin-top:14px;
   display:none;
+  margin-top:14px;
   font-weight:500;
   color:var(--main);
 }
 
-#noteText{
-  font-style:italic;
-}
-
-/* heart burst */
+/* burst hearts */
 .burst-heart{
   position:fixed;
   left:50%;
@@ -163,6 +162,19 @@ button.ghost{
   from{transform:translate(-50%,0);opacity:1}
   to{transform:translate(-50%,-140px);opacity:0}
 }
+
+/* photo page */
+.photo-row{
+  display:flex;
+  gap:12px;
+}
+.photo-row img{
+  width:100%;
+  border-radius:12px;
+}
+@media(max-width:600px){
+  .photo-row{flex-direction:column}
+}
 </style>
 </head>
 <body>
@@ -170,7 +182,7 @@ button.ghost{
 <div class="hearts" id="bgHearts"></div>
 
 <!-- Screen 1 -->
-<div class="card active" id="screen1">
+<div class="card active" id="s1">
   <h2>I made something small for you 🤍</h2>
   <p>Just for you.</p>
   <button id="openBtn">Open my note</button>
@@ -178,44 +190,43 @@ button.ghost{
 </div>
 
 <!-- Screen 2 -->
-<div class="card" id="screen2">
+<div class="card" id="s2">
   <h2>🔒 Your birthday note</h2>
-
   <div class="boxes">
     <img class="slot" src="heart-white.png">
     <img class="slot" src="pic1.png">
     <img class="slot" src="heart-white.png">
     <img class="slot" src="pic2.png">
   </div>
-
   <div class="lock" id="lockBtn">🔒</div>
   <p class="small">Tap the lock to unlock</p>
 </div>
 
-<!-- Screen 3 -->
-<div class="card" id="screen3">
+<!-- Screen 3 (Wish) -->
+<div class="card" id="wishCard">
   <h2>Happy belated birthday, Aiman 🤍</h2>
 
-  <p id="noteText">
+  <!-- ✏️ EDIT WISH TEXT HERE -->
+  <p>
 I’m really sorry I forgot your birthday.
 I take full responsibility for that.
 
 I just want you to know how proud I am of you —
 especially with everything you’re going through right now.
-Your dream to become a police officer and your discipline really inspire me.
 
-Even on the days you feel less confident about yourself,
-you are still someone I admire and care about deeply.
+Even on days you doubt yourself,
+you’re still someone I admire deeply.
 
-May Allah ease your journey, protect your heart,
-and give you peace while you’re preparing for your future.
+May Allah ease your journey,
+protect your heart,
+and guide you gently forward.
   </p>
 
   <p style="margin-top:10px;">— Aida</p>
 
   <div class="actions">
     <button id="heartBtn">❤️ Send a heart</button>
-    <button class="ghost" id="lastBtn">🌙 One last thing</button>
+    <button class="ghost" id="nextFromWish">🌙 One last thing</button>
   </div>
 
   <div class="hidden-line" id="hiddenLine">
@@ -223,78 +234,118 @@ and give you peace while you’re preparing for your future.
   </div>
 </div>
 
-<!-- Screen 4 -->
-<div class="card" id="screen4">
+<!-- Screen 4 (Photos) -->
+<div class="card" id="s4">
+  <h2>A small memory 🤍</h2>
+
+  <!-- 📸 PUT YOUR TWO PHOTOS HERE -->
+  <div class="photo-row">
+    <img src="photo1.jpg">
+    <img src="photo2.jpg">
+  </div>
+
+  <div class="actions">
+    <button id="toNote">Continue</button>
+  </div>
+</div>
+
+<!-- Screen 5 (Extra Note) -->
+<div class="card" id="s5">
+  <h2>Just so you know</h2>
+
+  <!-- ✏️ EDIT EXTRA NOTE HERE -->
+  <p>
+No matter how long the road feels,
+you don’t walk it unseen.
+
+I believe in you,
+in your strength,
+and in the future you’re working toward.
+  </p>
+
+  <div class="actions">
+    <button id="toFinal">One last page</button>
+  </div>
+</div>
+
+<!-- Screen 6 (Final) -->
+<div class="card" id="s6">
   <h2>Thank you for opening this 🤍</h2>
 </div>
 
 <script>
-const s1 = document.getElementById("screen1");
-const s2 = document.getElementById("screen2");
-const s3 = document.getElementById("screen3");
-const s4 = document.getElementById("screen4");
-
+const screens = ["s1","s2","wishCard","s4","s5","s6"].map(id=>document.getElementById(id));
 const openBtn = document.getElementById("openBtn");
 const lockBtn = document.getElementById("lockBtn");
 const slots = document.querySelectorAll(".slot");
-
 const heartBtn = document.getElementById("heartBtn");
-const lastBtn  = document.getElementById("lastBtn");
+const nextFromWish = document.getElementById("nextFromWish");
 const hiddenLine = document.getElementById("hiddenLine");
+const toNote = document.getElementById("toNote");
+const toFinal = document.getElementById("toFinal");
 
 let unlockCount = 0;
 
-openBtn.onclick = () => {
-  s1.classList.remove("active");
-  s2.classList.add("active");
+openBtn.onclick = ()=>{
+  screens[0].classList.remove("active");
+  screens[1].classList.add("active");
 };
 
-lockBtn.onclick = () => {
+lockBtn.onclick = ()=>{
   unlockCount++;
-
   lockBtn.classList.add("shake");
   setTimeout(()=>lockBtn.classList.remove("shake"),120);
 
-  if(slots[unlockCount - 1]){
-    slots[unlockCount - 1].classList.add("filled");
+  if(slots[unlockCount-1]){
+    slots[unlockCount-1].classList.add("filled");
   }
 
-  if(unlockCount >= 4){
+  if(unlockCount>=4){
     setTimeout(()=>{
-      s2.classList.remove("active");
-      s3.classList.add("active");
+      screens[1].classList.remove("active");
+      screens[2].classList.add("active");
     },400);
   }
 };
 
-heartBtn.onclick = () => {
+heartBtn.onclick = ()=>{
   for(let i=0;i<10;i++){
-    const h = document.createElement("div");
-    h.className = "burst-heart";
-    h.textContent = "🤍";
-    h.style.left = (45 + Math.random()*10) + "%";
+    const h=document.createElement("div");
+    h.className="burst-heart";
+    h.textContent="🤍";
+    h.style.left=(45+Math.random()*10)+"%";
     document.body.appendChild(h);
     setTimeout(()=>h.remove(),1800);
   }
 };
 
-lastBtn.onclick = () => {
-  hiddenLine.style.display = "block";
+nextFromWish.onclick = ()=>{
+  hiddenLine.style.display="block";
   setTimeout(()=>{
-    s3.classList.remove("active");
-    s4.classList.add("active");
-  },3000);
+    screens[2].classList.remove("active");
+    screens[3].classList.add("active");
+  },2500);
+};
+
+toNote.onclick = ()=>{
+  screens[3].classList.remove("active");
+  screens[4].classList.add("active");
+};
+
+toFinal.onclick = ()=>{
+  screens[4].classList.remove("active");
+  screens[5].classList.add("active");
 };
 
 /* background hearts */
-const bg = document.getElementById("bgHearts");
+const bg=document.getElementById("bgHearts");
 for(let i=0;i<16;i++){
-  const h = document.createElement("div");
-  h.className = "heart";
-  h.textContent = "❤";
-  h.style.left = Math.random()*100+"%";
-  h.style.animationDuration = (8+Math.random()*6)+"s";
-  h.style.fontSize = (12+Math.random()*10)+"px";
+  const h=document.createElement("div");
+  h.className="heart";
+  h.textContent="❤";
+  h.style.left=Math.random()*100+"%";
+  h.style.animationDuration=(8+Math.random()*6)+"s";
+  h.style.fontSize=(12+Math.random()*10)+"px";
   bg.appendChild(h);
 }
 </script>
